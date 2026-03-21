@@ -17,6 +17,11 @@ router.post("/register", async (req: Request, res: Response) => {
             return; // Ensure function exits
         }
 
+        if (!db) {
+            res.status(500).json({ message: "Database connection not available" });
+            return;
+        }
+
         const { email, password, name, role } = parseResult.data;
 
         const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
@@ -51,6 +56,11 @@ router.post("/login", async (req: Request, res: Response) => {
         const parseResult = loginSchema.safeParse(req.body);
         if (!parseResult.success) {
             res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
+            return;
+        }
+
+        if (!db) {
+            res.status(500).json({ message: "Database connection not available" });
             return;
         }
 

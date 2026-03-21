@@ -7,6 +7,7 @@ import attendanceRoutes from "./routes/attendance";
 import faceRoutes from "./routes/face";
 import sessionRoutes from "./routes/sessions";
 import sectionRoutes from "./routes/sections";
+import { db } from "./db";
 
 export function createServer() {
   const app = express();
@@ -20,6 +21,19 @@ export function createServer() {
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
     res.json({ message: ping });
+  });
+
+  app.get("/api/health", async (_req, res) => {
+    if (!db) {
+      return res.status(500).json({ status: "db_not_connected" });
+    }
+
+    try {
+      const result = await db.execute("SELECT 1 as ok");
+      return res.json({ status: "ok", db: !!result });
+    } catch (error: any) {
+      return res.status(500).json({ status: "db_error", error: error.message });
+    }
   });
 
   app.get("/api/demo", handleDemo);
