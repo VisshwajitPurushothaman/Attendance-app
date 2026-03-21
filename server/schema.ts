@@ -1,6 +1,8 @@
-import { mysqlTable, serial, varchar, timestamp, text, bigint, mysqlEnum, int } from "drizzle-orm/mysql-core"; // Schema for Attendance Tracker
+import { pgTable, serial, varchar, timestamp, text, bigint, pgEnum, integer } from "drizzle-orm/pg-core";
 
-export const users = mysqlTable("users", {
+export const attendanceStatusEnum = pgEnum("attendance_status", ["present", "absent", "late"]);
+
+export const users = pgTable("users", {
     id: serial("id").primaryKey(),
     name: varchar("name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
@@ -14,20 +16,20 @@ export const users = mysqlTable("users", {
     createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const sections = mysqlTable("sections", {
+export const sections = pgTable("sections", {
     id: serial("id").primaryKey(),
     name: varchar("name", { length: 255 }).notNull(),
     createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const teacherSections = mysqlTable("teacher_sections", {
+export const teacherSections = pgTable("teacher_sections", {
     id: serial("id").primaryKey(),
     teacherId: bigint("teacher_id", { mode: 'number' }).references(() => users.id).notNull(),
     sectionId: bigint("section_id", { mode: 'number' }).references(() => sections.id).notNull(),
     createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const sessions = mysqlTable("sessions", {
+export const sessions = pgTable("sessions", {
     id: serial("id").primaryKey(),
     teacherId: bigint("teacher_id", { mode: 'number' }).references(() => users.id).notNull(),
     sectionId: bigint("section_id", { mode: 'number' }).references(() => sections.id), // New: associate session with a section
@@ -38,12 +40,12 @@ export const sessions = mysqlTable("sessions", {
     createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const attendance = mysqlTable("attendance", {
+export const attendance = pgTable("attendance", {
     id: serial("id").primaryKey(),
     userId: bigint("user_id", { mode: 'number' }).references(() => users.id).notNull(),
-    sessionId: bigint("session_id", { mode: 'number' }).references(() => sessions.id), // Link to session
+    sessionId: bigint("session_id", { mode: 'number' }).references(() => sessions.id),
     date: timestamp("date").defaultNow(),
-    status: mysqlEnum("status", ["present", "absent", "late"]).default("present"),
+    status: attendanceStatusEnum("status").default("present"),
     method: varchar("method", { length: 50 }).notNull(), // Changed to varchar for more flexibility (qr, facial, hybrid)
     subject: varchar("subject", { length: 255 }),
     qrVerified: varchar("qr_verified", { length: 10 }).default("false"),
@@ -52,7 +54,7 @@ export const attendance = mysqlTable("attendance", {
     longitude: varchar("longitude", { length: 50 }),
 });
 
-export const faceEncodings = mysqlTable("face_encodings", {
+export const faceEncodings = pgTable("face_encodings", {
     id: serial("id").primaryKey(),
     userId: bigint("user_id", { mode: 'number' }).references(() => users.id).notNull().unique(),
     encoding: text("encoding").notNull(), // JSON array of face descriptor values
