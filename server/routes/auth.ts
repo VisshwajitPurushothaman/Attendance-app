@@ -11,7 +11,17 @@ const router = Router();
 
 router.post("/register", async (req: Request, res: Response) => {
     try {
-        const parseResult = signupSchema.safeParse(req.body);
+        let body = req.body;
+        if (typeof body === 'string') {
+            try {
+                body = JSON.parse(body);
+            } catch (e) {
+                res.status(400).json({ message: "Invalid JSON" });
+                return;
+            }
+        }
+
+        const parseResult = signupSchema.safeParse(body);
         if (!parseResult.success) {
             res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
             return; // Ensure function exits
@@ -53,7 +63,17 @@ router.post("/register", async (req: Request, res: Response) => {
 
 router.post("/login", async (req: Request, res: Response) => {
     try {
-        const parseResult = loginSchema.safeParse(req.body);
+        let body = req.body;
+        if (typeof body === 'string') {
+            try {
+                body = JSON.parse(body);
+            } catch (e) {
+                res.status(400).json({ message: "Invalid JSON" });
+                return;
+            }
+        }
+
+        const parseResult = loginSchema.safeParse(body);
         if (!parseResult.success) {
             res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
             return;
