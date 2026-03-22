@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { db } from "../db";
 import { users } from "../schema";
-import { loginSchema, signupSchema } from "@shared/api";
+import { loginSchema, signupSchema } from "../../shared/api";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 // In a real app, use bcrypt or argon2
