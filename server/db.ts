@@ -1,8 +1,6 @@
 import "dotenv/config";
 import { Pool } from "pg";
 import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
-import mysql from "mysql2/promise";
-import { drizzle as drizzleMysql } from "drizzle-orm/mysql";
 import * as schema from "./schema";
 
 const databaseUrl =
@@ -30,14 +28,10 @@ if (!databaseUrl) {
   );
 } else if (dbType === "postgres") {
   pool = new Pool({ connectionString: databaseUrl });
-  db = drizzlePg(pool, { schema, mode: "default" });
+  db = drizzlePg(pool, { schema });
   console.info("[db] Connected to Postgres database");
-} else if (dbType === "mysql") {
-  pool = mysql.createPool(databaseUrl);
-  db = drizzleMysql(pool, { schema, mode: "default" });
-  console.info("[db] Connected to MySQL database");
 } else {
-  console.error(`[db] ERROR: Unsupported DB_TYPE '${dbType}'. Use 'postgres' or 'mysql'.`);
+  console.error(`[db] ERROR: Unsupported DB_TYPE '${dbType}'. Use 'postgres'.`);
 }
 
 
