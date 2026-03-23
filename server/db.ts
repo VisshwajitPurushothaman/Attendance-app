@@ -1,6 +1,8 @@
 import "dotenv/config";
-import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
+import mysql from "mysql2/promise";
+import { drizzle as drizzleMysql } from "drizzle-orm/mysql";
 import * as schema from "./schema";
 
 const databaseUrl =
@@ -9,20 +11,34 @@ const databaseUrl =
   process.env.NETLIFY_DATABASE_URL ||
   process.env.NEON_DATABASE_URL;
 
+// You can override DB type explicitly with DB_TYPE (mysql | postgres)
+const dbTypeFromEnv = process.env.DB_TYPE?.toLowerCase();
+const inferredDbType = databaseUrl?.startsWith("mysql://")
+  ? "mysql"
+  : databaseUrl?.startsWith("postgres://") || databaseUrl?.startsWith("postgresql://")
+  ? "postgres"
+  : "postgres";
+
+export const dbType = dbTypeFromEnv || inferredDbType;
+
+export let pool: any = null;
+export let db: any = null;
+
 if (!databaseUrl) {
   console.error(
-    "[db] ERROR: No database URL provided. Expected DATABASE_URL or NETLIFY_DATABASE_URL_UNPOOLED."
+    "[db] ERROR: No database URL provided. Expected DATABASE_URL, NETLIFY_DATABASE_URL_UNPOOLED, or NEON_DATABASE_URL."
   );
-}
-
-export let pool: Pool | null = null;
-export let db: ReturnType<(typeof drizzle)> | null = null;
-
-if (databaseUrl) {
+} else if (dbType === "postgres") {
   pool = new Pool({ connectionString: databaseUrl });
-  db = drizzle(pool, { schema, mode: "default" });
-  console.info("[db] Connected to database");
+  db = drizzlePg(pool, { schema, mode: "default" });
+  console.info("[db] Connected to Postgres database");
+} else if (dbType === "mysql") {
+  pool = mysql.createPool(databaseUrl);
+  db = drizzleMysql(pool, { schema, mode: "default" });
+  console.info("[db] Connected to MySQL database");
 } else {
-  console.warn("[db] Running without a database connection.");
+  console.error(`[db] ERROR: Unsupported DB_TYPE '${dbType}'. Use 'postgres' or 'mysql'.`);
 }
+
+
 
