@@ -2,7 +2,7 @@ import "dotenv/config";
 import { Pool } from "pg";
 import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
 import mysql from "mysql2/promise";
-import { drizzle as drizzleMysql } from "drizzle-orm/mysql";
+import { drizzle as drizzleMysql } from "drizzle-orm/mysql2";
 import * as schema from "./schema";
 
 const databaseUrl =
