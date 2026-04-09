@@ -27,7 +27,13 @@ if (!databaseUrl) {
     "[db] ERROR: No database URL provided. Expected DATABASE_URL, NETLIFY_DATABASE_URL_UNPOOLED, or NEON_DATABASE_URL."
   );
 } else if (dbType === "postgres") {
-  pool = new Pool({ connectionString: databaseUrl });
+  // Add explicit sslmode to suppress PostgreSQL warnings
+  let connectionString = databaseUrl;
+  if (!connectionString.includes("sslmode=")) {
+    const separator = connectionString.includes("?") ? "&" : "?";
+    connectionString = connectionString + separator + "sslmode=require";
+  }
+  pool = new Pool({ connectionString });
   db = drizzlePg(pool, { schema });
   console.info("[db] Connected to Postgres database");
 } else {

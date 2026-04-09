@@ -44,17 +44,16 @@ router.post("/register", async (req: Request, res: Response) => {
         // const passwordHash = await bcrypt.hash(password, 10);
         const passwordHash = password; // WARNING: Don't do this in production!
 
-        const [result] = await db.insert(users).values({
+        const insertResult = await db.insert(users).values({
             name,
             email,
             passwordHash,
             role, // Add validation for role enum if strict
-        });
+        }).returning();
 
-        // Fetch the newly created user to return (optional)
-        // const newUser = await db.select().from(users).where(eq(users.id, result.insertId)).limit(1);
+        const result = insertResult[0];
 
-        res.status(201).json({ message: "User created successfully", userId: result.insertId });
+        res.status(201).json({ message: "User created successfully", userId: result.id });
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).json({ message: "Internal server error" });
