@@ -1,14 +1,22 @@
 {
   "version": 2,
-  "buildCommand": "pnpm build",
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": "dist/spa/**"
+  "buildCommand": "npm run build",
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist/spa"
+      }
     }
-  },
+  ],
   "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.ts" },
     { "handle": "filesystem" },
-    { "src": "/api/(.*)", "dest": "api/index.ts" },
-    { "src": "/(.*)", "dest": "api/index.ts" }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
