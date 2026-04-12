@@ -10,8 +10,8 @@ const __dirname = path.dirname(__filename);
 const app = createServer();
 
 // Serve static files (React SPA)
-// In Vercel, this resolves to /var/task/dist
-const distPath = path.join(__dirname, "..", "dist");
+// Client build output (must match vite build.outDir and server/node-build.ts)
+const distPath = path.join(__dirname, "..", "dist", "spa");
 console.log("Serving static files from:", distPath);
 
 app.use(express.static(distPath, { 
