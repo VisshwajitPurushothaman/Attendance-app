@@ -22,7 +22,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    outDir: "dist/spa",
+    // Client at dist/ matches Vercel Vite preset default Output Directory (dist/spa caused 404).
+    outDir: "dist",
   },
   plugins: [react(), /* expressPlugin() */],
   resolve: {

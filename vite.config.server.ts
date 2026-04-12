@@ -4,6 +4,7 @@ import path from "path";
 // Server build configuration
 export default defineConfig({
   build: {
+    emptyOutDir: false,
     lib: {
       entry: path.resolve(__dirname, "server/node-build.ts"),
       name: "server",

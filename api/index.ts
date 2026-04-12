@@ -11,7 +11,7 @@ const app = createServer();
 
 // Serve static files (React SPA)
 // Client build output (must match vite build.outDir and server/node-build.ts)
-const distPath = path.join(__dirname, "..", "dist", "spa");
+const distPath = path.join(__dirname, "..", "dist");
 console.log("Serving static files from:", distPath);
 
 app.use(express.static(distPath, { 
